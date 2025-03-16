@@ -25,19 +25,27 @@ logging.info("Using API endpoint: %s", API_ENDPOINT)
 
 # Storage bucket that holds all generated images
 STORAGE_BUCKET_NAME = os.environ.get("STORAGE_BUCKET_NAME")
-if not STORAGE_BUCKET_NAME:
+
+storage_client = storage.Client()
+image_bucket = None
+
+if STORAGE_BUCKET_NAME:
+    try:
+        image_bucket = storage_client.bucket(STORAGE_BUCKET_NAME)
+    except Exception as e:
+        logger.error(f"Error accessing storage bucket: {e}")
+else:
     logger.warning("STORAGE_BUCKET_NAME environment variable not set")
+
 
 def list_recently_created_image_urls():
     """Lists all objects in a bucket with their public URLs."""
 
-    if not STORAGE_BUCKET_NAME:
+    if not image_bucket:
         return []
+    
+    return [f"images/{blob.name}" for blob in sorted(image_bucket.list_blobs(), key=lambda blob: blob.time_created, reverse=True)]
 
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(STORAGE_BUCKET_NAME)
-
-    return [f"images/{blob.name}" for blob in sorted(bucket.list_blobs(), key=lambda blob: blob.time_created, reverse=True)]
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -70,9 +78,7 @@ def get_gallery_images():
 
 @app.route('/images/<filename>', methods=['GET'])
 def serve_image(filename):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(STORAGE_BUCKET_NAME)
-    blob = bucket.blob(filename)
+    blob = image_bucket.blob(filename)
     image_data = blob.download_as_bytes()
 
     # Set cache control headers for one day

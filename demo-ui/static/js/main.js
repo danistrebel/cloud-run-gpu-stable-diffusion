@@ -81,5 +81,16 @@ function closeOverlay() {
     document.getElementById('imageOverlay').style.display = 'none';
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceInfoDiv = document.querySelector('.service-info-title'); 
+    const serviceInfoBody = document.querySelector('.service-info-body');
+    const icon = serviceInfoDiv.querySelector('.material-icons');
+
+    serviceInfoDiv.addEventListener('click', function() {
+        icon.classList.toggle('rotated');
+        serviceInfoBody.classList.toggle('collapsed');
+    });
+});
+
 // Load the gallery when the page loads
 window.onload = loadGallery;

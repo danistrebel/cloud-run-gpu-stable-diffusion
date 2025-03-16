@@ -9,24 +9,71 @@
 </head>
 <body>
   <div class="container">
-
-    <div class="form-container">
-      <h1>Serverless Stable Diffusion<br/> with Cloud Run GPU</h1>
-      <form method="POST">
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--full-width">
-          <textarea class="mdl-textfield__input" type="text" rows="3" id="prompt" name="prompt" style="width: 100%;"></textarea>
-          <label class="mdl-textfield__label" for="prompt">Enter a prompt</label>
+    <div class="demo-controls">
+      <div class="form-container">
+        <h1>Stable Diffusion<br/> with Cloud Run GPU</h1>
+        <form method="POST">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-textfield--full-width">
+            <textarea class="mdl-textfield__input" type="text" rows="3" id="prompt" name="prompt" style="width: 100%;"></textarea>
+            <label class="mdl-textfield__label" for="prompt">Enter a prompt</label>
+          </div>
+  
+          <br>
+          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit" onclick="showLoading()" style="margin-right: 16px;">
+            <i class="material-icons">image</i> Generate Image
+          </button>
+          <button type="button" class="mdl-button mdl-js-button mdl-button--raised" onclick="generatePrompt()" style="margin-right: 16px;">
+            <i class="material-icons">create</i> Generate Prompt
+          </button>
+        </form>
+      </div>
+      <div class="form-container">
+        <div class="service-info-title">
+          <i id="expand-service-info" class="material-icons">keyboard_arrow_down</i>
+          <h4>Service Info</h4>
+        </div>
+        
+        <div class="service-info-body">
+          <div class="serivce-info-entry">
+            <div class="service-info-label">Load Generator Clients</div>
+            <div class="service-info-viz">
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-active"></div>
+              <div class="instance load-gen-starting"></div>
+              <div class="instance load-gen-starting"></div>
+              <div class="instance load-gen-starting"></div>
+              <div class="instance load-gen-starting"></div>
+              <div class="instance load-gen-starting"></div>
+              <div class="instance load-gen-starting"></div>
+            </div>
+          </div>
+          <div class="serivce-info-entry">
+            <div class="service-info-label">GPU Instances</div>
+            <div class="service-info-viz">
+              <div class="instance cloud-run-instance"></div>
+              <div class="instance cloud-run-instance"></div>
+              <div class="instance cloud-run-instance"></div>
+              <div class="instance cloud-run-instance"></div>
+              <div class="instance cloud-run-instance"></div>
+              <div class="instance cloud-run-instance"></div>
+              <div class="instance cloud-run-instance"></div>
+              <div class="instance cloud-run-instance"></div>
+              <div class="instance cloud-run-instance"></div>
+            </div>
+          </div>
         </div>
 
-        <br>
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit" onclick="showLoading()" style="margin-right: 16px;">
-          <i class="material-icons">image</i> Generate Image
-        </button>
-        <button type="button" class="mdl-button mdl-js-button mdl-button--raised" onclick="generatePrompt()" style="margin-right: 16px;">
-          <i class="material-icons">create</i> Generate Prompt
-        </button>
-      </form>
+      </div>
     </div>
+    
 
     <div class="gallery-container"> 
       <h3>Image Gallery</h3>

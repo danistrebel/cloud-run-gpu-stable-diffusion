@@ -7,13 +7,91 @@
     padding: 0 20px;
 }
 
-.form-container {
+.demo-controls {
     width: 45%;
-    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-container {
+    width: 100%;
+    padding: 22px;
     border-radius: 4px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
         0 3px 1px -2px rgba(0, 0, 0, 0.12),
         0 1px 5px 0 rgba(0, 0, 0, 0.2);
+    margin: 20px 0;
+}
+
+.service-info-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#expand-service-info {
+    margin-right: 8px;
+    cursor: pointer;
+    font-size: 3rem;
+    transition: transform 0.3s ease; 
+}
+
+#expand-service-info.rotated {
+    transform: rotate(-90deg);
+}
+
+.service-info-body {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    width: 100%;
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.service-info-body.collapsed {
+    max-height: 0;
+}
+
+.service-info-body .serivce-info-entry {
+    flex: 1;
+    align-items: center;
+}
+
+.service-info-label {
+    margin-bottom: 1rem;
+}
+
+.service-info-viz {
+    display: flex; 
+    align-items: center; 
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.service-info-viz > div.instance {
+    width: 20px; 
+    height: 20px;
+    background-color: #6f6f6f;
+    border-radius: 4px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
+
+.service-info-viz > div.instance.load-gen-starting {
+    background-color: #6bbe98;
+}
+
+.service-info-viz > div.instance.load-gen-active {
+    background-color: #00522d;
+}
+
+.service-info-viz > div.instance.cloud-run-instance {
+    background-color: #210ab3;
 }
 
 .gallery-container {
@@ -26,6 +104,8 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     margin-top: 32px;
+    overflow-x: auto;
+    max-height: calc(100vh - 100px);
 }
 
 .gallery img {
