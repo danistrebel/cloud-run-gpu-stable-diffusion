@@ -19,10 +19,14 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Replace with your actual Torchserve Stable diffusion API endpoint
-API_ENDPOINT = os.environ.get("SD_API_ENDPOINT") or "http://localhost:8181/predictions/stable_diffusion"
+API_ENDPOINT = os.environ.get("SD_API_ENDPOINT") or "http://localhost:8181"
+logging.info("Using API endpoint: %s", API_ENDPOINT)
+
 
 # Storage bucket that holds all generated images
 STORAGE_BUCKET_NAME = os.environ.get("STORAGE_BUCKET_NAME")
+if not STORAGE_BUCKET_NAME:
+    logger.warning("STORAGE_BUCKET_NAME environment variable not set")
 
 def list_recently_created_image_urls():
     """Lists all objects in a bucket with their public URLs."""

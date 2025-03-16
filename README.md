@@ -80,8 +80,7 @@ gcloud run services proxy stable-diffusion-gpu --region $REGION --port=8081 --pr
 
 ### UI with IAP
 
-Make sure you have set the cloud run invoker for the IAP service account:
-
+g
 ```sh
 PROJECT_NUMBER="$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')"
 gcloud run services add-iam-policy-binding stable-diffusion-gpu \

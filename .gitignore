@@ -1,3 +1,4 @@
 generated-imagtes/*.jpg
 stable-diffusion-service.yaml
 venv
+.venv
