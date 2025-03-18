@@ -70,6 +70,106 @@ function loadGallery() {
         });
 }
 
+let loadGeneratorInterval = null;
+
+function updateLoadGeneratorStatus(){
+    fetch('/generator/report')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json()
+        })
+        .then(data => {
+            console.log('Load generator status:', data);
+            updateUI(data);
+        })
+        .catch(error => {
+            console.error('Error fetching Load generator status:', error);
+        });
+}
+
+function updateUI(data) {
+    const loadGenViz = document.querySelector(".serivce-info-entry.clients .service-info-viz");
+    const gpuInstanceViz = document.querySelector(".serivce-info-entry.instances .service-info-viz");
+
+    if (loadGenViz && gpuInstanceViz) {
+        updateInstances(loadGenViz, data.clients_running, "load-gen-active");
+        updateInstances(gpuInstanceViz, data.gpu_instances_running, "cloud-run-instance");
+    } else {
+      console.error("Could not find one of the service info viz elements in the dom. load-generator-running is probably not visible.");
+    }
+    document.querySelector('.serivce-info-entry.clients .service-info-label').innerText = `Load Generator Clients: ${data.clients_running}/${data.clients_configured}`
+    document.querySelector('.serivce-info-entry.instances .service-info-label').innerText = `GPU Instances: ${data.gpu_instances_running}`
+
+}
+
+function updateInstances(container, count, activeClass) {
+    container.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+        const instance = document.createElement("div");
+        instance.classList.add("instance", activeClass);
+        container.appendChild(instance);
+    }    
+}
+
+function stopLoadGenerator() {
+    fetch(`/generator/stop`, {
+        method: 'GET'
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text()
+    })
+    .then(data => {
+        if (loadGeneratorInterval) {
+            clearInterval(loadGeneratorInterval);
+            loadGeneratorInterval = null;
+        }
+        document.getElementById('load-generator-stopped').style.display = 'flex';
+        document.getElementById('load-generator-running').style.display = 'none';
+    })
+    .catch(error => {
+        console.error('Error stopping load generator:', error);
+        alert("Error stopping load generator. Check the console for details.");
+    });
+
+    
+}
+
+function startLoadGenerator() {
+    const targetUrl = document.getElementById('load-generator-target').value;
+    const numClients = document.getElementById('load-generator-clients').value;
+
+    if (!targetUrl || !numClients) {
+        alert("Please enter both target URL and number of clients.");
+        return;
+    }
+
+    fetch(`/generator/start?target=${encodeURIComponent(targetUrl)}&clients=${numClients}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text()
+        })
+        .then(data => {
+            console.log('Load generator started:', data);
+            document.getElementById('load-generator-stopped').style.display = 'none';
+            document.getElementById('load-generator-running').style.display = 'flex';
+            
+            // Start polling for generator status every second
+            loadGeneratorInterval = setInterval(updateLoadGeneratorStatus, 1000);
+        })
+        .catch(error => {
+            console.error('Error starting load generator:', error);
+            alert("Error starting load generator. Check the console for details.");
+        });
+}
+
 // Function to open the overlay
 function openOverlay(imageUrl) {
     document.getElementById('overlayImage').src = imageUrl;
@@ -82,13 +182,19 @@ function closeOverlay() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const serviceInfoDiv = document.querySelector('.service-info-title'); 
-    const serviceInfoBody = document.querySelector('.service-info-body');
-    const icon = serviceInfoDiv.querySelector('.material-icons');
+    const container = document.querySelector('.demo-controls');
 
-    serviceInfoDiv.addEventListener('click', function() {
-        icon.classList.toggle('rotated');
-        serviceInfoBody.classList.toggle('collapsed');
+    container.addEventListener('click', function(event) {
+        const serviceInfoDiv = event.target.closest('.service-info-title');
+        if (serviceInfoDiv) {
+            const serviceInfoBody = serviceInfoDiv.nextElementSibling;
+            const icon = serviceInfoDiv.querySelector('.material-icons');
+
+            if (serviceInfoBody) {
+                icon.classList.toggle('rotated');
+                serviceInfoBody.classList.toggle('collapsed');
+            }
+        }
     });
 });
 

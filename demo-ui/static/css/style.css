@@ -7,12 +7,65 @@
     padding: 0 20px;
 }
 
+.hero {
+    display: flex;
+    flex: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.hero img.logo {
+    height: 10rem;
+    margin-right: 2rem;
+}
+
 .demo-controls {
     width: 45%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+}
+
+.image-generator-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.image-generator-prompt {
+    flex: 1;
+}
+
+.image-generator-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: 2rem;
+}
+
+.image-generator-actions > button {
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.load-generator-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.load-generator-input > div.target {
+    flex: 1;
+    margin-right: 2rem;
+}
+
+.load-generator-input > div.clients {
+    width: 10rem;
+    margin-right: 2rem;
 }
 
 .form-container {

@@ -22,6 +22,7 @@ app = Flask(__name__)
 API_ENDPOINT = os.environ.get("SD_API_ENDPOINT") or "http://localhost:8181"
 logging.info("Using API endpoint: %s", API_ENDPOINT)
 
+GENERATOR_URL = os.environ.get("GENERATOR_URL")
 
 # Storage bucket that holds all generated images
 STORAGE_BUCKET_NAME = os.environ.get("STORAGE_BUCKET_NAME")
@@ -95,6 +96,39 @@ def delete_image(filename):
     blob.delete()
     return jsonify({"message": "Image deleted successfully"})
 
+@app.route('/generator/report', methods=['GET'])
+def generator_status():
+    """Fetches and returns the status from the GENERATOR_URL."""
+    try:
+        response = requests.get(f"{GENERATOR_URL}/report")
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching generator status: {e}")
+        return jsonify({"error": "Failed to fetch generator status"}), 500
+
+@app.route('/generator/start')
+def start_load_generator():
+    target = request.args.get('target')
+    clients = request.args.get('clients')
+
+    try:
+        response = requests.get(f"{GENERATOR_URL}/start?target={target}&clients={clients}")
+        response.raise_for_status()
+        return "OK"
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error starting load generator: {e}")
+        return jsonify({"error": "Failed to start load generator"}), 500
+
+@app.route('/generator/stop')
+def stop_load_generator():
+    try:
+        response = requests.get(f"{GENERATOR_URL}/stop")
+        response.raise_for_status()
+        return "OK"
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error stopping load generator: {e}")
+        return jsonify({"error": "Failed to stop load generator"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=os.environ.get("PORT", 8080))
