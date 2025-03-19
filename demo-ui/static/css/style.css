@@ -4,7 +4,12 @@
     align-items: center;
     justify-content: space-around;
     height: 100vh;
-    padding: 0 20px;
+}
+
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+    }
 }
 
 .hero {
@@ -20,11 +25,13 @@
 }
 
 .demo-controls {
-    width: 45%;
+    max-width: 800px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    padding: 40px;
+    flex: 1;
 }
 
 .image-generator-input {
@@ -148,7 +155,7 @@
 }
 
 .gallery-container {
-    width: 45%;
+    flex: 1;
     align-self: flex-start;
 }
 
@@ -165,7 +172,7 @@
     width: 150px;
     height: 150px;
     object-fit: cover;
-    margin: 8px;
+    margin: 0 20px 20px 0;
     border-radius: 4px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
         0 3px 1px -2px rgba(0, 0, 0, 0.12),
