@@ -5,8 +5,8 @@ import io
 import logging
 import os
 
-from diffusers import StableDiffusionXLImg2ImgPipeline
-from diffusers import StableDiffusionXLPipeline
+from diffusers import StableDiffusion3Pipeline
+
 from google.cloud import storage
 import numpy as np
 from PIL import Image
@@ -44,10 +44,9 @@ class DiffusersHandler(BaseHandler, ABC):
     properties = ctx.system_properties
     model_dir = properties.get("model_dir")
     model_name = os.environ["MODEL_NAME"]
-    model_refiner = os.environ["MODEL_REFINER"]
     # set optional model_cache to the env variable or None 
     model_cache_path = os.environ.get("MODEL_CACHE_PATH")
-
+    hf_token = os.environ.get("HF_TOKEN")
 
     self.bucket = None
     if (os.environ.get("STORAGE_BUCKET_NAME")):
@@ -71,28 +70,15 @@ class DiffusersHandler(BaseHandler, ABC):
     # open the pipeline to the inferenece model 
     # this is generating the image
     logger.info("Downloading model %s", model_name)
-    self.pipeline = StableDiffusionXLPipeline.from_pretrained(
+    self.pipeline = StableDiffusion3Pipeline.from_pretrained(
         model_name,
-        variant="fp16",
-        torch_dtype=torch.float16,
-        use_safetensors=True,
+        torch_dtype=torch.bfloat16,
+        token=hf_token,
         cache_dir=model_cache_path,
     ).to(self.device)
     logger.info("done Downloading model %s", model_name)
 
-    # open the pipeline to the refiner
-    # refiner is used to remove artifacts from the image
-    logger.info("Downloading refiner %s", model_refiner)
-    self.refiner = StableDiffusionXLImg2ImgPipeline.from_pretrained(
-        model_refiner,
-        variant="fp16",
-        torch_dtype=torch.float16,
-        use_safetensors=True,
-        cache_dir=model_cache_path,
-    ).to(self.device)
-    logger.info("done Downloading refiner %s", model_refiner)
-
-    self.n_steps = 40
+    self.n_steps = 10
     self.high_noise_frac = 0.8
     self.initialized = True
     # Commonly used basic negative prompts.
@@ -142,15 +128,6 @@ class DiffusersHandler(BaseHandler, ABC):
         output_type="latent",
     ).images
     logger.info("Done model")
-
-    image = self.refiner(
-        prompt=inputs,
-        negative_prompt=self.negative_prompt,
-        num_inference_steps=self.n_steps,
-        denoising_start=self.high_noise_frac,
-        image=image,
-    ).images
-    logger.info("Done refiner")
 
     return image
 
