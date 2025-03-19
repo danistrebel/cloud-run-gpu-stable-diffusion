@@ -30,6 +30,8 @@ spec:
           value: http://localhost:8181
         - name: STORAGE_BUCKET_NAME
           value: PROJECT_ID-images
+        - name: GENERATOR_URL
+          value: http://localhost:8183 # or change this to sidecar for generator
         resources:
           limits:
             memory: 256Mi
