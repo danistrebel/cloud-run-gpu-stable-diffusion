@@ -25,19 +25,27 @@
         </div>
         <div class="service-info-body">
           <form method="POST" class="image-generator-input">
-            <div class="image-generator-prompt mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <textarea class="mdl-textfield__input" type="text" rows="3" id="prompt" name="prompt"
-                style="width: 100%;"></textarea>
-              <label class="mdl-textfield__label" for="prompt">Enter a prompt</label>
+            <div class="image-generator-request">
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="ad-hoc-generator-target"
+                  id="ad-hoc-generator-target" value="{{default_api_endpoint}}">
+                <label class="mdl-textfield__label" for="ad-hoc-generator-target">Target URL</label>
+              </div>
+
+              <div class="image-generator-prompt mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea class="mdl-textfield__input" type="text" rows="3" id="ad-hoc-generator-prompt"
+                  name="ad-hoc-generator-prompt" style="width: 100%;"></textarea>
+                <label class="mdl-textfield__label" for="prompt">Enter a prompt</label>
+              </div>
             </div>
 
+
             <div class="image-generator-actions">
-              <button type="button" class="mdl-button mdl-js-button mdl-button--raised" onclick="generatePrompt()"
-                style="margin-right: 16px;">
+              <button type="button" class="mdl-button mdl-js-button mdl-button--raised" onclick="generatePrompt()">
                 <i class="material-icons">create</i> Generate Prompt
               </button>
               <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit"
-                onclick="showLoading()" style="margin-right: 16px;">
+                onclick="showLoading()">
                 <i class="material-icons">image</i> Generate Image
               </button>
             </div>
@@ -50,46 +58,60 @@
           <i id="expand-service-info" class="material-icons">keyboard_arrow_down</i>
           <h4>Load Generator</h4>
         </div>
-        <div id="load-generator-stopped" class="service-info-body">
-          <div class="serivce-info-entry">
-            <div class="load-generator-input">
-              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label target">
-                <input class="mdl-textfield__input" type="text" id="load-generator-target">
-                <label class="mdl-textfield__label" for="load-generator-target">Target URL</label>
-              </div>
+        <div class="service-info-body">
+          <div id="load-generator-stopped">
+            <div class="serivce-info-entry">
+              <div class="load-generator-input">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label target">
+                  <input class="mdl-textfield__input" type="text" id="load-generator-target"
+                    value="{{default_api_endpoint}}">
+                  <label class="mdl-textfield__label" for="load-generator-target">Target URL</label>
+                </div>
 
-              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label clients">
-                <input class="mdl-textfield__input" type="number" id="load-generator-clients">
-                <label class="mdl-textfield__label" for="load-generator-clients"># Clients</label>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label clients">
+                  <input class="mdl-textfield__input" type="number" id="load-generator-clients" value="20">
+                  <label class="mdl-textfield__label" for="load-generator-clients"># Clients</label>
+                </div>
+
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label ramp">
+                  <input class="mdl-textfield__input" type="number" id="load-generator-ramp" value="2">
+                  <label class="mdl-textfield__label" for="load-generator-ramp">Ramp (in sec)</label>
+                </div>
+
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+                  onclick="startLoadGenerator()">
+                  <i class="material-icons">play_arrow</i> Start
+                </button>
               </div>
-              
+            </div>
+          </div>
+          <div id="load-generator-running" style="display: none;">
+            <div class="service-info-row">
+              <div class="service-info-label">Time Elapsed: <span id="generator-time-elapsed">-</span></div>
+            </div>
+            <div class="service-info-row">
+              <div class="service-info-label">Images Generated: <span id="generator-images-generated">-</span></div>
+            </div>
+            <div class="service-info-row viz">
+              <div class="serivce-info-entry clients">
+                <div class="service-info-label">Load Generator Clients</div>
+                <div class="service-info-viz">
+                </div>
+              </div>
+              <div class="serivce-info-entry instances">
+                <div class="service-info-label">GPU Instances</div>
+                <div class="service-info-viz">
+                </div>
+              </div>
               <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-                onclick="startLoadGenerator()" style="margin-right: 16px;">
-                <i class="material-icons">play_arrow</i> Start
-              </button>
-            </div>
-          </div>
-        </div>
-        <div id="load-generator-running" class="service-info-body" style="display: none;">
-          <div class="serivce-info-entry clients">
-            <div class="service-info-label">Load Generator Clients</div>
-            <div></div>
-            <div class="service-info-viz">
-            </div>
-          </div>
-          <div class="serivce-info-entry instances">
-            <div class="service-info-label">GPU Instances</div>
-            <div class="service-info-viz">
-            </div>
-          </div>
-          <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-                onclick="stopLoadGenerator()" style="margin-right: 16px;">
+                onclick="stopLoadGenerator()">
                 <i class="material-icons">stop</i> Stop
               </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
 
     <div class="gallery-container">
       <h3>Image Gallery</h3>

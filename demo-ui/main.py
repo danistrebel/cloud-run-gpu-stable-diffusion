@@ -51,7 +51,12 @@ def list_recently_created_image_urls():
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        prompt_text = request.form["prompt"]
+        api_target = request.form.get("ad-hoc-generator-target")
+        if not api_target or not api_target.startswith('http'):
+            logger.warn("Invalid API target: %s", api_target)
+            api_target = API_ENDPOINT
+
+        prompt_text = request.form["ad-hoc-generator-prompt"]
         logger.info("Received image generation request: %s", prompt_text)
 
         data = {"data": prompt_text}
@@ -64,12 +69,23 @@ def index():
             logger.error("API response: %s", response.text)
             return f"Error: API request failed: {response.text}"
 
-    return render_template("index.html")
+    return render_template("index.html", default_api_endpoint=API_ENDPOINT)
 
-# Pass-through route for /predictions/stable_diffusion
 @app.route('/predictions/stable_diffusion', methods=['POST'])
 def stable_diffusion_proxy():
-    return requests.post(f"{API_ENDPOINT}/predictions/stable_diffusion", data=request.data).content
+    try:
+      data = request.get_json(force=True)
+      target = data.pop('target', None)
+
+      if target and target.startswith('http'):
+        response = requests.post(f"{target}/predictions/stable_diffusion", json=data)
+      else:
+        logger.warn(f"Invalid target URL: {target}, using default API endpoint: {API_ENDPOINT}")
+        response = requests.post(f"{API_ENDPOINT}/predictions/stable_diffusion", json=data)
+      return response.content
+    except Exception as e:
+        logger.error(f"Error proxying stable diffusion request: {e}")
+        return jsonify({"error": "Failed to proxy stable diffusion request"}), 500
 
 @app.route('/images')
 def get_gallery_images():

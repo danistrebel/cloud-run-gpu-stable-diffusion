@@ -12,7 +12,7 @@ function removeQueryParam(param) {
 }
 
 function generatePrompt() {
-    const promptInput = document.getElementById('prompt');
+    const promptInput = document.getElementById('ad-hoc-generator-prompt');
 
     const subjects = [
         "A majestic dragon", "A curious fox", "A steampunk robot", "A field of wildflowers", "A bustling cityscape", "A serene forest", "A hidden waterfall", "A futuristic spaceship", "A group of playful kittens", "A wise old owl"
@@ -101,7 +101,20 @@ function updateUI(data) {
     }
     document.querySelector('.serivce-info-entry.clients .service-info-label').innerText = `Load Generator Clients: ${data.clients_running}/${data.clients_configured}`
     document.querySelector('.serivce-info-entry.instances .service-info-label').innerText = `GPU Instances: ${data.gpu_instances_running}`
+    document.getElementById('generator-images-generated').innerText = data.num_images_generated;
 
+    
+    const startTime = new Date(data.start_time);
+    const now = new Date();
+    const elapsedTime = Math.floor((now - startTime) / 1000); // in seconds
+    const formattedElapsedTime = formatTime(elapsedTime);
+    document.getElementById('generator-time-elapsed').innerText = formattedElapsedTime;
+}
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
 }
 
 function updateInstances(container, count, activeClass) {
@@ -141,13 +154,14 @@ function stopLoadGenerator() {
 function startLoadGenerator() {
     const targetUrl = document.getElementById('load-generator-target').value;
     const numClients = document.getElementById('load-generator-clients').value;
+    const ramp = document.getElementById('load-generator-ramp').value;
 
-    if (!targetUrl || !numClients) {
-        alert("Please enter both target URL and number of clients.");
+    if (!targetUrl || !numClients || !ramp) {
+        alert("Please enter both target URL, number of clients and ramp interval.");
         return;
     }
 
-    fetch(`/generator/start?target=${encodeURIComponent(targetUrl)}&clients=${numClients}`, {
+    fetch(`/generator/start?target=${encodeURIComponent(targetUrl)}&clients=${numClients}&ramp=${ramp}s`, {
         method: 'GET'
     })
         .then(response => {

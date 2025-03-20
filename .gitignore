@@ -3,3 +3,4 @@ stable-diffusion-service.yaml
 venv
 .venv
 .DS_STORE
+.vscode
