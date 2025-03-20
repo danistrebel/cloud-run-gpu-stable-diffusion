@@ -30,6 +30,7 @@ function generatePrompt() {
     let prompt = `${subjects[Math.floor(Math.random() * subjects.length)]} ${actions[Math.floor(Math.random() * actions.length)]} ${styles[Math.floor(Math.random() * styles.length)]} ${details[Math.floor(Math.random() * details.length)]}`;
 
     promptInput.value = prompt;
+    promptInput.parentElement.classList.add("is-dirty");
 }
 
 // Function to fetch and display gallery images
