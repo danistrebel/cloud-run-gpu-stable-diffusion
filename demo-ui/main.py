@@ -40,16 +40,17 @@ else:
 
 
 def list_recently_created_image_urls():
-    """Lists all objects in a bucket with their public URLs."""
+    """Lists up to 200 recently created objects in a bucket with their publicly accessible URLs."""
 
     if not image_bucket:
         return []
-    
-    return [f"images/{blob.name}" for blob in sorted(image_bucket.list_blobs(), key=lambda blob: blob.time_created, reverse=True)]
+    blobs = sorted(image_bucket.list_blobs(), key=lambda blob: blob.time_created, reverse=True)
+    return [f"images/{blob.name}" for blob in blobs[:200]]
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+
     if request.method == "POST":
         api_target = request.form.get("ad-hoc-generator-target")
         if not api_target or not api_target.startswith('http'):

@@ -33,6 +33,7 @@ function generatePrompt() {
     promptInput.parentElement.classList.add("is-dirty");
 }
 
+
 // Function to fetch and display gallery images
 function loadGallery() {
     fetch('/images')
@@ -41,28 +42,30 @@ function loadGallery() {
             const galleryContainer = document.getElementById('imageGallery');
             let delay = 0;
             images.forEach(imageUrl => {
-                const img = document.createElement('img');
-                img.src = imageUrl;
-                img.alt = 'Gallery Image';
-                img.style.opacity = 0;
-                galleryContainer.appendChild(img);
+                if (!document.querySelector(`img[src="${imageUrl}"]`)) {  //check if img already exists
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'Gallery Image';
+                    img.style.opacity = 0;
+                    galleryContainer.insertBefore(img, galleryContainer.firstChild);
 
-                // Add click event to each gallery image
-                img.addEventListener('click', () => {
-                    openOverlay(imageUrl);
-                });
+                    // Add click event to each gallery image
+                    img.addEventListener('click', () => {
+                        openOverlay(imageUrl);
+                    });
 
-                setTimeout(() => {
-                    img.style.animation = `fadeIn 0.5s ease-in-out`;
-                    img.style.opacity = 1;
-                }, delay);
+                    setTimeout(() => {
+                        img.style.animation = `fadeIn 0.5s ease-in-out`;
+                        img.style.opacity = 1;
+                    }, delay);
 
-                delay += 100;
+                    delay += 100;
 
-                // Highlight the first image after it is generated or explicitly query parameter is set
-                if (new URLSearchParams(window.location.search).has('highlight_latest')) {
-                    openOverlay(imageUrl);
-                    removeQueryParam('highlight_latest');
+                    // Highlight the first image after it is generated or explicitly query parameter is set
+                    if (new URLSearchParams(window.location.search).has('highlight_latest')) {
+                        openOverlay(imageUrl);
+                        removeQueryParam('highlight_latest');
+                    }
                 }
             });
         })
@@ -71,6 +74,8 @@ function loadGallery() {
         });
 }
 
+
+// Update Load generator
 let loadGeneratorInterval = null;
 
 function updateLoadGeneratorStatus(){
@@ -215,3 +220,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load the gallery when the page loads
 window.onload = loadGallery;
+setInterval(loadGallery, 3000);
