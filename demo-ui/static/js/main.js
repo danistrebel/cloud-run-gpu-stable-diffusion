@@ -40,6 +40,7 @@ function loadGallery() {
         .then(response => response.json())
         .then(images => {
             const galleryContainer = document.getElementById('imageGallery');
+            isInitialLoad = galleryContainer.children.length === 0;
             let delay = 0;
             images.forEach(imageUrl => {
                 if (!document.querySelector(`img[src="${imageUrl}"]`)) {  //check if img already exists
@@ -47,7 +48,13 @@ function loadGallery() {
                     img.src = imageUrl;
                     img.alt = 'Gallery Image';
                     img.style.opacity = 0;
-                    galleryContainer.insertBefore(img, galleryContainer.firstChild);
+                    
+                    // append most recent at the head on subsequent loads
+                    if (isInitialLoad) {
+                        galleryContainer.appendChild(img);
+                    } else {
+                        galleryContainer.insertBefore(img, galleryContainer.firstChild);
+                    }
 
                     // Add click event to each gallery image
                     img.addEventListener('click', () => {
