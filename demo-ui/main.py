@@ -48,42 +48,34 @@ def list_recently_created_image_urls():
     return [f"images/{blob.name}" for blob in blobs[:200]]
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def index():
-
-    if request.method == "POST":
-        api_target = request.form.get("ad-hoc-generator-target")
-        if not api_target or not api_target.startswith('http'):
-            logger.warn("Invalid API target: %s", api_target)
-            api_target = API_ENDPOINT
-
-        prompt_text = request.form["ad-hoc-generator-prompt"]
-        logger.info("Received image generation request: %s", prompt_text)
-
-        data = {"data": prompt_text}
-        response = requests.post(f"{API_ENDPOINT}/predictions/stable_diffusion", data=data)
-
-        if response.status_code == 200:
-            return redirect("/?highlight_latest=true")
-        else:
-            logger.error("API request failed with status code: %s", response.status_code)
-            logger.error("API response: %s", response.text)
-            return f"Error: API request failed: {response.text}"
-
     return render_template("index.html", default_api_endpoint=API_ENDPOINT)
 
 @app.route('/predictions/stable_diffusion', methods=['POST'])
 def stable_diffusion_proxy():
     try:
       data = request.get_json(force=True)
-      target = data.pop('target', None)
+      target = data.get('target', None)
+      prompt = data.get('prompt', None)
+      
+      if not prompt:
+          logger.error("No prompt provided in the request.")
+          return jsonify({"error": "No prompt provided"}), 400
+
+      api_data = {"data": prompt}
 
       if target and target.startswith('http'):
-        response = requests.post(f"{target}/predictions/stable_diffusion", json=data)
+        response = requests.post(f"{target}/predictions/stable_diffusion", data=api_data)
       else:
-        logger.warn(f"Invalid target URL: {target}, using default API endpoint: {API_ENDPOINT}")
+        logger.warning(f"Invalid target URL: {target}, using default API endpoint: {API_ENDPOINT}")
         response = requests.post(f"{API_ENDPOINT}/predictions/stable_diffusion", json=data)
-      return response.content
+      response.raise_for_status()
+      logger.info(f"Response: {response.content}")
+      return make_response(response.content, response.status_code, response.headers.items())
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error proxying stable diffusion request: {e}, response: {e.response.content if e.response else 'No Response'}")
+        return jsonify({"error": f"Failed to proxy stable diffusion request: {e}"}), 500
     except Exception as e:
         logger.error(f"Error proxying stable diffusion request: {e}")
         return jsonify({"error": "Failed to proxy stable diffusion request"}), 500

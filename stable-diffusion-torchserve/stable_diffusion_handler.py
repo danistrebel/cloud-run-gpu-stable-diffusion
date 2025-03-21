@@ -45,12 +45,11 @@ class DiffusersHandler(BaseHandler, ABC):
     model_dir = properties.get("model_dir")
     model_name = os.environ["MODEL_NAME"]
     model_refiner = os.environ["MODEL_REFINER"]
-    # set optional model_cache to the env variable or None 
+    # set optional model_cache to the env variable or None
     model_cache_path = os.environ.get("MODEL_CACHE_PATH")
 
-
     self.bucket = None
-    if (os.environ.get("STORAGE_BUCKET_NAME")):
+    if os.environ.get("STORAGE_BUCKET_NAME"):
       self.bucket = storage.Client().bucket(os.environ["STORAGE_BUCKET_NAME"])
 
     logger.info(
@@ -68,7 +67,7 @@ class DiffusersHandler(BaseHandler, ABC):
     )
     logger.info("Device used: %s", self.device)
 
-    # open the pipeline to the inferenece model 
+    # open the pipeline to the inferenece model
     # this is generating the image
     logger.info("Downloading model %s", model_name)
     self.pipeline = StableDiffusionXLPipeline.from_pretrained(
@@ -97,7 +96,9 @@ class DiffusersHandler(BaseHandler, ABC):
     self.initialized = True
     # Commonly used basic negative prompts.
     logger.info("using negative_prompt")
-    self.negative_prompt = ("worst quality, normal quality, low quality, low res, blurry")
+    self.negative_prompt = (
+        "worst quality, normal quality, low quality, low res, blurry"
+    )
 
   # this handles the user request
   def preprocess(self, requests):
@@ -134,7 +135,8 @@ class DiffusersHandler(BaseHandler, ABC):
     """
     logger.info("Inference request started")
     # Handling inference for sequence_classification.
-    image = self.pipeline(
+    # Expecting a list of string from the inputs
+    images = self.pipeline(
         prompt=inputs,
         negative_prompt=self.negative_prompt,
         num_inference_steps=self.n_steps,
@@ -143,16 +145,17 @@ class DiffusersHandler(BaseHandler, ABC):
     ).images
     logger.info("Done model")
 
-    image = self.refiner(
+    # The refiner expect a list of image from the image variable
+    images = self.refiner(
         prompt=inputs,
         negative_prompt=self.negative_prompt,
         num_inference_steps=self.n_steps,
         denoising_start=self.high_noise_frac,
-        image=image,
+        image=images,
     ).images
     logger.info("Done refiner")
 
-    return image
+    return images
 
   def postprocess(self, inference_output):
     """Post Process Function converts the generated image into Torchserve readable format.
@@ -169,21 +172,25 @@ class DiffusersHandler(BaseHandler, ABC):
     response_size = 0
     for image in inference_output:
       # Save image to GCS
+      image_name = None
       if self.bucket:
-        image.save("temp.jpg")
+          image_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".jpg"
+          with io.BytesIO() as output:
+            image.save(output, format="JPEG")
+            image_bytes = output.getvalue()
+            # Create a blob object
+            blob = self.bucket.blob(image_name)
 
-        # Create a blob object
-        blob = self.bucket.blob(
-            datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".jpg"
-        )
+            # Upload the file
+            blob.upload_from_string(image_bytes, content_type='image/jpeg')
+      if image_name is None:
+          image_name = "no_bucket_" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".jpg"
+          image.save(image_name)
+      images.append({"image": image_name})
 
-        # Upload the file
-        blob.upload_from_filename("temp.jpg")
-
-      # to see the image, encode to base64
-      encoded = image_to_base64(image)
-      response_size += len(encoded)
-      images.append(encoded)
-
-    logger.info("Images %d, response size: %d", len(images), response_size)
+    logger.info(
+        "Images %d, paths: [%s]",
+        len(images),
+        ", ".join(img["image"] for img in images),
+    )
     return images

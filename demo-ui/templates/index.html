@@ -24,11 +24,11 @@
           <h4>Ad-Hoc Image Generation</h4>
         </div>
         <div class="service-info-body">
-          <form method="POST" class="image-generator-input">
+          <div class="image-generator-input" id="ad-hoc-generator-form">
             <div class="image-generator-request">
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input class="mdl-textfield__input" type="text" id="ad-hoc-generator-target"
-                  id="ad-hoc-generator-target" value="{{default_api_endpoint}}">
+                  name="ad-hoc-generator-target" value="{{default_api_endpoint}}">
                 <label class="mdl-textfield__label" for="ad-hoc-generator-target">Target URL</label>
               </div>
 
@@ -44,12 +44,12 @@
               <button type="button" class="mdl-button mdl-js-button mdl-button--raised" onclick="generatePrompt()">
                 <i class="material-icons">create</i> Generate Prompt
               </button>
-              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit"
-                onclick="showLoading()">
+              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+                onclick="generateImage()">
                 <i class="material-icons">image</i> Generate Image
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
 
@@ -110,6 +110,11 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="docs-link">
+        <img class="docs-qr" src="{{ url_for('static', filename='img/docsqr.png') }}">
+        <h2>g.co/cloudrun/gpu</h2>
       </div>
     </div>
 

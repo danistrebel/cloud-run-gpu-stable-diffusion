@@ -48,7 +48,7 @@ function loadGallery() {
                     img.src = imageUrl;
                     img.alt = 'Gallery Image';
                     img.style.opacity = 0;
-                    
+
                     // append most recent at the head on subsequent loads
                     if (isInitialLoad) {
                         galleryContainer.appendChild(img);
@@ -67,12 +67,6 @@ function loadGallery() {
                     }, delay);
 
                     delay += 100;
-
-                    // Highlight the first image after it is generated or explicitly query parameter is set
-                    if (new URLSearchParams(window.location.search).has('highlight_latest')) {
-                        openOverlay(imageUrl);
-                        removeQueryParam('highlight_latest');
-                    }
                 }
             });
         })
@@ -85,7 +79,7 @@ function loadGallery() {
 // Update Load generator
 let loadGeneratorInterval = null;
 
-function updateLoadGeneratorStatus(){
+function updateLoadGeneratorStatus() {
     fetch('/generator/report')
         .then(response => {
             if (!response.ok) {
@@ -110,13 +104,13 @@ function updateUI(data) {
         updateInstances(loadGenViz, data.clients_running, "load-gen-active");
         updateInstances(gpuInstanceViz, data.gpu_instances_running, "cloud-run-instance");
     } else {
-      console.error("Could not find one of the service info viz elements in the dom. load-generator-running is probably not visible.");
+        console.error("Could not find one of the service info viz elements in the dom. load-generator-running is probably not visible.");
     }
     document.querySelector('.serivce-info-entry.clients .service-info-label').innerText = `Load Generator Clients: ${data.clients_running}/${data.clients_configured}`
     document.querySelector('.serivce-info-entry.instances .service-info-label').innerText = `GPU Instances: ${data.gpu_instances_running}`
     document.getElementById('generator-images-generated').innerText = data.num_images_generated;
 
-    
+
     const startTime = new Date(data.start_time);
     const now = new Date();
     const elapsedTime = Math.floor((now - startTime) / 1000); // in seconds
@@ -136,7 +130,7 @@ function updateInstances(container, count, activeClass) {
         const instance = document.createElement("div");
         instance.classList.add("instance", activeClass);
         container.appendChild(instance);
-    }    
+    }
 }
 
 function stopLoadGenerator() {
@@ -148,20 +142,20 @@ function stopLoadGenerator() {
         }
         return response.text()
     })
-    .then(data => {
-        if (loadGeneratorInterval) {
-            clearInterval(loadGeneratorInterval);
-            loadGeneratorInterval = null;
-        }
-        document.getElementById('load-generator-stopped').style.display = 'flex';
-        document.getElementById('load-generator-running').style.display = 'none';
-    })
-    .catch(error => {
-        console.error('Error stopping load generator:', error);
-        alert("Error stopping load generator. Check the console for details.");
-    });
+        .then(data => {
+            if (loadGeneratorInterval) {
+                clearInterval(loadGeneratorInterval);
+                loadGeneratorInterval = null;
+            }
+            document.getElementById('load-generator-stopped').style.display = 'flex';
+            document.getElementById('load-generator-running').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error stopping load generator:', error);
+            alert("Error stopping load generator. Check the console for details.");
+        });
 
-    
+
 }
 
 function startLoadGenerator() {
@@ -187,7 +181,7 @@ function startLoadGenerator() {
             console.log('Load generator started:', data);
             document.getElementById('load-generator-stopped').style.display = 'none';
             document.getElementById('load-generator-running').style.display = 'flex';
-            
+
             // Start polling for generator status every second
             loadGeneratorInterval = setInterval(updateLoadGeneratorStatus, 1000);
         })
@@ -208,10 +202,46 @@ function closeOverlay() {
     document.getElementById('imageOverlay').style.display = 'none';
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.querySelector('.demo-controls');
+async function generateImage() {
+    showLoading();
 
-    container.addEventListener('click', function(event) {
+    const target = document.getElementById('ad-hoc-generator-target').value;
+    const prompt = document.getElementById('ad-hoc-generator-prompt').value;
+
+    const data = { prompt, target };
+
+    try {
+        const response = await fetch('/predictions/stable_diffusion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Request failed with status ${response.status}: ${errorData.error}`);
+        }
+
+        loadGallery();
+
+        const responseData = await response.json();
+        const imageFileName = responseData.image;
+        if (imageFileName) {
+            openOverlay(`/images/${imageFileName}`);        
+        }
+        
+        document.getElementById("loading").style.display = "none";
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById("loading").style.display = "none";
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.querySelector('.demo-controls');
+    container.addEventListener('click', function (event) {
         const serviceInfoDiv = event.target.closest('.service-info-title');
         if (serviceInfoDiv) {
             const serviceInfoBody = serviceInfoDiv.nextElementSibling;

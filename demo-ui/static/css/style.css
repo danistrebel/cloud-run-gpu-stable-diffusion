@@ -24,6 +24,18 @@
     margin-right: 2rem;
 }
 
+.docs-link {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.docs-link > img.docs-qr {
+    height: 7rem;
+    margin-right: 2rem;
+}
+
 .demo-controls {
     max-width: 800px;
     display: flex;
