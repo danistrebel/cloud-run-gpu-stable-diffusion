@@ -161,10 +161,10 @@ function stopLoadGenerator() {
 function startLoadGenerator() {
     const targetUrl = document.getElementById('load-generator-target').value;
     const numClients = document.getElementById('load-generator-clients').value;
-    const ramp = document.getElementById('load-generator-ramp').value;
+    const ramp = document.getElementById('load-generator-ramp').value
 
     if (!targetUrl || !numClients || !ramp) {
-        alert("Please enter both target URL, number of clients and ramp interval.");
+        alert("Please enter all of the following values: target URL, number of clients, and ramp interval.");
         return;
     }
 

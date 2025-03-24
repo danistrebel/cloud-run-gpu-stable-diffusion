@@ -120,9 +120,10 @@ def generator_status():
 def start_load_generator():
     target = request.args.get('target')
     clients = request.args.get('clients')
+    ramp = request.args.get('ramp')
 
     try:
-        response = requests.get(f"{GENERATOR_URL}/start?target={target}&clients={clients}")
+        response = requests.get(f"{GENERATOR_URL}/start?target={target}&clients={clients}&ramp={ramp}")
         response.raise_for_status()
         return "OK"
     except requests.exceptions.RequestException as e:
