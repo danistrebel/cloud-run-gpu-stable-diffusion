@@ -149,7 +149,7 @@
 
 .service-info-row > h5,
 .service-info-metric,
-#generator-time-elapsed {
+#generator-time {
     color: #174EA6
 }
 
@@ -163,7 +163,7 @@
     justify-content: flex-end;
 }
 
-#generator-time-elapsed {
+#generator-time {
     margin-left: 60px;
     font-size: 3rem;
 }

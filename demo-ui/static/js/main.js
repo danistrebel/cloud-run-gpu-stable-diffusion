@@ -157,7 +157,7 @@ function stopLoadGenerator() {
             }
             document.getElementById('load-generator-stopped').style.display = 'flex';
             document.getElementById('load-generator-running').style.display = 'none';
-            document.getElementById('generator-time-elapsed').style.display = 'none';
+            document.getElementById('generator-time').style.display = 'none';
             document.getElementById('ad-hoc-generator-card').style.display = 'block';
         })
         .catch(error => {
@@ -192,7 +192,7 @@ function startLoadGenerator() {
             document.getElementById('load-generator-stopped').style.display = 'none';
             document.getElementById('ad-hoc-generator-card').style.display = 'none';
             document.getElementById('load-generator-running').style.display = 'flex';
-            document.getElementById('generator-time-elapsed').style.display = 'inline';
+            document.getElementById('generator-time').style.display = 'inline';
 
             // Start polling for generator status every second
             loadGeneratorInterval = setInterval(updateLoadGeneratorStatus, 1000);
