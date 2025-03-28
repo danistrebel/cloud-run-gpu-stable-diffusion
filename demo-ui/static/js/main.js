@@ -106,13 +106,13 @@ function updateUI(data) {
     } else {
         console.error("Could not find one of the service info viz elements in the dom. load-generator-running is probably not visible.");
     }
-    document.querySelector('.serivce-info-entry.clients .service-info-label').innerText = `Load Generator Clients: ${data.clients_running}/${data.clients_configured}`
-    document.querySelector('.serivce-info-entry.instances .service-info-label').innerText = `GPU Instances: ${data.gpu_instances_running}`
-    
+
     document.getElementById('generator-images-generated').innerText = data.num_images_generated || 0;
     document.getElementById('generator-images-per-second').innerText = data.images_per_second || 0;
     document.getElementById('generator-images-generation-latency').innerText = (data.image_generation_latency || 0) + 's';
     document.getElementById('generator-requests-per-second').innerText = (data.requests_per_second || 0);
+    document.getElementById('generator-gpu-instances').innerText = (data.gpu_instances_running || 0);
+    document.getElementById('generator-clients').innerText = `${data.clients_running}/${data.clients_configured}`;
 
     const startTime = new Date(data.start_time);
     const now = new Date();

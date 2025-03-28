@@ -164,7 +164,8 @@
 }
 
 #generator-time-elapsed {
-    margin-left: 20px;
+    margin-left: 60px;
+    font-size: 3rem;
 }
 
 .service-info-metric {
