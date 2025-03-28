@@ -108,8 +108,11 @@ function updateUI(data) {
     }
     document.querySelector('.serivce-info-entry.clients .service-info-label').innerText = `Load Generator Clients: ${data.clients_running}/${data.clients_configured}`
     document.querySelector('.serivce-info-entry.instances .service-info-label').innerText = `GPU Instances: ${data.gpu_instances_running}`
-    document.getElementById('generator-images-generated').innerText = data.num_images_generated;
-
+    
+    document.getElementById('generator-images-generated').innerText = data.num_images_generated || 0;
+    document.getElementById('generator-images-per-second').innerText = data.images_per_second || 0;
+    document.getElementById('generator-images-generation-latency').innerText = (data.image_generation_latency || 0) + 's';
+    document.getElementById('generator-requests-per-second').innerText = (data.requests_per_second || 0);
 
     const startTime = new Date(data.start_time);
     const now = new Date();
@@ -121,8 +124,13 @@ function updateUI(data) {
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
+    if (minutes > 0) {
+        return `${minutes}m ${remainingSeconds}s`;
+    } else {
+        return `${remainingSeconds}s`;
+    }
 }
+
 
 function updateInstances(container, count, activeClass) {
     container.innerHTML = "";
@@ -149,6 +157,8 @@ function stopLoadGenerator() {
             }
             document.getElementById('load-generator-stopped').style.display = 'flex';
             document.getElementById('load-generator-running').style.display = 'none';
+            document.getElementById('generator-time-elapsed').style.display = 'none';
+            document.getElementById('ad-hoc-generator-card').style.display = 'block';
         })
         .catch(error => {
             console.error('Error stopping load generator:', error);
@@ -180,7 +190,9 @@ function startLoadGenerator() {
         .then(data => {
             console.log('Load generator started:', data);
             document.getElementById('load-generator-stopped').style.display = 'none';
+            document.getElementById('ad-hoc-generator-card').style.display = 'none';
             document.getElementById('load-generator-running').style.display = 'flex';
+            document.getElementById('generator-time-elapsed').style.display = 'inline';
 
             // Start polling for generator status every second
             loadGeneratorInterval = setInterval(updateLoadGeneratorStatus, 1000);

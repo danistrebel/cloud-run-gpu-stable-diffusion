@@ -18,7 +18,7 @@
       </div>
 
 
-      <div class="form-container">
+      <div class="form-container" id="ad-hoc-generator-card">
         <div class="service-info-title">
           <i id="expand-service-info" class="material-icons">keyboard_arrow_down</i>
           <h4>Ad-Hoc Image Generation</h4>
@@ -56,7 +56,7 @@
       <div class="form-container">
         <div class="service-info-title">
           <i id="expand-service-info" class="material-icons">keyboard_arrow_down</i>
-          <h4>Load Generator</h4>
+          <h4>Load Generator <span id="generator-time-elapsed" style="display: none;"></span></h4>
         </div>
         <div class="service-info-body collapsed">
           <div id="load-generator-stopped">
@@ -86,11 +86,37 @@
             </div>
           </div>
           <div id="load-generator-running" style="display: none;">
-            <div class="service-info-row">
-              <div class="service-info-label">Time Elapsed: <span id="generator-time-elapsed">-</span></div>
+            <div class="service-info-row align-end">
+              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+                onclick="stopLoadGenerator()">
+                <i class="material-icons">stop</i> Stop
+              </button>
             </div>
             <div class="service-info-row">
-              <div class="service-info-label">Images Generated: <span id="generator-images-generated">-</span></div>
+              <h5><i class="material-icons">image</i> Images</h5>
+            </div>
+            <div class="service-info-row">
+              <div class="service-info-row">
+                <div>
+                  <div class="service-info-metric" id="generator-images-generated"></div>
+                  <div class="service-info-label">Total Generated</div>
+                </div>
+                <div>
+                  <div class="service-info-metric" id="generator-images-per-second"></div>
+                  <div class="service-info-label">Images per Second</div>
+                </div>
+                <div>
+                  <div class="service-info-metric" id="generator-images-generation-latency"></div>
+                  <div class="service-info-label">Generation Latency</div>
+                </div>
+                <div>
+                  <div class="service-info-metric" id="generator-requests-per-second"></div>
+                  <div class="service-info-label">Requests per Second</div>
+                </div>
+              </div>
+            </div>
+            <div class="service-info-row">
+              <h5><i class="material-icons">bar_chart</i> Infrastructure</h5>
             </div>
             <div class="service-info-row viz">
               <div class="serivce-info-entry clients">
@@ -103,10 +129,6 @@
                 <div class="service-info-viz">
                 </div>
               </div>
-              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-                onclick="stopLoadGenerator()">
-                <i class="material-icons">stop</i> Stop
-              </button>
             </div>
           </div>
         </div>

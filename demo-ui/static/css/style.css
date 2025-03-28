@@ -147,8 +147,30 @@
     justify-content: space-between;
 }
 
-.service-info-row.viz {
-    margin-top: 20px;
+.service-info-row > h5,
+.service-info-metric,
+#generator-time-elapsed {
+    color: #174EA6
+}
+
+
+.service-info-row > h5 > .material-icons {
+    top: 4px;
+    position: relative;
+}
+
+.service-info-row.align-end {
+    justify-content: flex-end;
+}
+
+#generator-time-elapsed {
+    margin-left: 20px;
+}
+
+.service-info-metric {
+    font-size: 3rem;
+    min-height: 26px;
+    margin: 20px 0 10px 0;
 }
 
 .service-info-body.collapsed {
@@ -186,15 +208,15 @@
 }
 
 .service-info-viz > div.instance.load-gen-starting {
-    background-color: #6bbe98;
+    background-color: #34A853;
 }
 
 .service-info-viz > div.instance.load-gen-active {
-    background-color: #00522d;
+    background-color: #0D652D;
 }
 
 .service-info-viz > div.instance.cloud-run-instance {
-    background-color: #210ab3;
+    background-color: #4285F4;
 }
 
 .gallery-container {
