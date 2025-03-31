@@ -1,16 +1,3 @@
-function showLoading() {
-    document.getElementById("loading").style.display = "block";
-}
-
-function removeQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has(param)) {
-        urlParams.delete(param);
-        const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
-        window.history.replaceState({}, '', newUrl); // Update URL without reloading
-    }
-}
-
 function generatePrompt() {
     const promptInput = document.getElementById('ad-hoc-generator-prompt');
 
@@ -33,9 +20,21 @@ function generatePrompt() {
     promptInput.parentElement.classList.add("is-dirty");
 }
 
+window.onload = () => {
+    loadGallery();
+};
 
-// Function to fetch and display gallery images
+let lastGalleryLoadTime = 0;
+
 function loadGallery() {
+    const currentTime = Date.now();
+    if (currentTime - lastGalleryLoadTime < 3000) {
+        setTimeout(loadGallery, 3000 - (currentTime - lastGalleryLoadTime));
+        return;
+    }
+
+    lastGalleryLoadTime = currentTime;
+
     fetch('/images')
         .then(response => response.json())
         .then(images => {
@@ -43,20 +42,18 @@ function loadGallery() {
             isInitialLoad = galleryContainer.children.length === 0;
             let delay = 0;
             images.forEach(imageUrl => {
-                if (!document.querySelector(`img[src="${imageUrl}"]`)) {  //check if img already exists
+                if (!document.querySelector(`img[src="${imageUrl}"]`)) {
                     const img = document.createElement('img');
                     img.src = imageUrl;
                     img.alt = 'Gallery Image';
                     img.style.opacity = 0;
 
-                    // append most recent at the head on subsequent loads
                     if (isInitialLoad) {
                         galleryContainer.appendChild(img);
                     } else {
                         galleryContainer.insertBefore(img, galleryContainer.firstChild);
                     }
 
-                    // Add click event to each gallery image
                     img.addEventListener('click', () => {
                         openOverlay(imageUrl);
                     });
@@ -69,9 +66,11 @@ function loadGallery() {
                     delay += 100;
                 }
             });
+            setTimeout(loadGallery, 3000);
         })
         .catch(error => {
             console.error('Error fetching images:', error);
+            setTimeout(loadGallery, 3000);
         });
 }
 
@@ -89,14 +88,14 @@ function updateLoadGeneratorStatus() {
         })
         .then(data => {
             console.log('Load generator status:', data);
-            updateUI(data);
+            updateGeneratorStatusUI(data);
         })
         .catch(error => {
             console.error('Error fetching Load generator status:', error);
         });
 }
 
-function updateUI(data) {
+function updateGeneratorStatusUI(data) {
     const loadGenViz = document.querySelector(".serivce-info-entry.clients .service-info-viz");
     const gpuInstanceViz = document.querySelector(".serivce-info-entry.instances .service-info-viz");
 
@@ -215,7 +214,7 @@ function closeOverlay() {
 }
 
 async function generateImage() {
-    showLoading();
+    document.getElementById("loading").style.display = "block";
 
     const target = document.getElementById('ad-hoc-generator-target').value;
     const prompt = document.getElementById('ad-hoc-generator-prompt').value;
@@ -266,7 +265,3 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
-
-// Load the gallery when the page loads
-window.onload = loadGallery;
-setInterval(loadGallery, 3000);
