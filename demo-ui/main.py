@@ -44,8 +44,8 @@ def list_recently_created_image_urls():
 
     if not image_bucket:
         return []
-    blobs = sorted(image_bucket.list_blobs(), key=lambda blob: blob.time_created, reverse=True)
-    return [f"images/{blob.name}" for blob in blobs[:200]]
+    blobs = sorted(image_bucket.list_blobs(max_results=250), key=lambda blob: blob.time_created, reverse=True)
+    return [f"images/{blob.name}" for blob in blobs]
 
 
 @app.route("/", methods=["GET"])

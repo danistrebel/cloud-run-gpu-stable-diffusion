@@ -174,7 +174,11 @@ class DiffusersHandler(BaseHandler, ABC):
       # Save image to GCS
       image_name = None
       if self.bucket:
-          image_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + ".jpg"
+          # Calculate milliseconds until year 3000 so we can have decreasing file names over time.
+          future_date = datetime.datetime(3000, 1, 1)
+          time_diff = future_date - datetime.datetime.now()
+          milliseconds_until_3000 = int(time_diff.total_seconds() * 1000)
+          image_name = f"{milliseconds_until_3000:016d}.jpg"
           with io.BytesIO() as output:
             image.save(output, format="JPEG")
             image_bytes = output.getvalue()
