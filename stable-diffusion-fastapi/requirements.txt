@@ -1,0 +1,9 @@
+accelerate==1.9.0
+diffusers==0.34.0
+fastapi==0.116.1
+google-cloud-storage==3.2.0
+nvgpu==0.10.0
+pillow==11.0.0
+python-dotenv==1.1.1
+transformers==4.53.2
+uvicorn[standard]==0.35.0

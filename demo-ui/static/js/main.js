@@ -26,14 +26,17 @@ window.onload = () => {
 
 let lastGalleryLoadTime = 0;
 
-function loadGallery() {
-    const currentTime = Date.now();
-    if (currentTime - lastGalleryLoadTime < 3000) {
-        setTimeout(loadGallery, 3000 - (currentTime - lastGalleryLoadTime));
-        return;
+function galleryAutoReload() {
+    if (loadGeneratorInterval) {
+        loadGallery();
+        setTimeout(galleryAutoReload, 3000);
+    } else {
+        console.log("Generator Not Running")
     }
+    
+}
 
-    lastGalleryLoadTime = currentTime;
+function loadGallery() {
 
     fetch('/images')
         .then(response => response.json())
@@ -66,11 +69,9 @@ function loadGallery() {
                     delay += 100;
                 }
             });
-            setTimeout(loadGallery, 3000);
         })
         .catch(error => {
             console.error('Error fetching images:', error);
-            setTimeout(loadGallery, 3000);
         });
 }
 
@@ -195,6 +196,8 @@ function startLoadGenerator() {
 
             // Start polling for generator status every second
             loadGeneratorInterval = setInterval(updateLoadGeneratorStatus, 1000);
+            // Auto refresh image gallery
+            galleryAutoReload()
         })
         .catch(error => {
             console.error('Error starting load generator:', error);
@@ -216,7 +219,7 @@ function closeOverlay() {
 async function generateImage() {
     document.getElementById("loading").style.display = "block";
 
-    const target = document.getElementById('ad-hoc-generator-target').value;
+    const target = document.getElementById('ad-hoc-generator-target')?.value;
     const prompt = document.getElementById('ad-hoc-generator-prompt').value;
 
     const data = { prompt, target };

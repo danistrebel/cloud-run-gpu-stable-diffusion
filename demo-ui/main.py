@@ -19,8 +19,10 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Replace with your actual Torchserve Stable diffusion API endpoint
-API_ENDPOINT = os.environ.get("SD_API_ENDPOINT") or "http://localhost:8181"
-logging.info("Using API endpoint: %s", API_ENDPOINT)
+SD_API_ENDPOINT = os.environ.get("SD_API_ENDPOINT") or "http://localhost:8181"
+ALLOW_SD_API_ENDPOINT_OVERRIDE = os.environ.get("ALLOW_SD_API_ENDPOINT_OVERRIDE", "false").lower() == "true"
+
+logging.info("Using API endpoint: %s", SD_API_ENDPOINT)
 
 GENERATOR_URL = os.environ.get("GENERATOR_URL")
 
@@ -50,7 +52,7 @@ def list_recently_created_image_urls():
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("index.html", default_api_endpoint=API_ENDPOINT)
+    return render_template("index.html", generator_url=GENERATOR_URL, default_api_endpoint=SD_API_ENDPOINT, allow_api_endpoint_override=ALLOW_SD_API_ENDPOINT_OVERRIDE)
 
 @app.route('/predictions/stable_diffusion', methods=['POST'])
 def stable_diffusion_proxy():
@@ -65,11 +67,11 @@ def stable_diffusion_proxy():
 
       api_data = {"data": prompt}
 
-      if target and target.startswith('http'):
+      if ALLOW_SD_API_ENDPOINT_OVERRIDE and target and target.startswith('http'):
         response = requests.post(f"{target}/predictions/stable_diffusion", data=api_data)
       else:
-        logger.warning(f"Invalid target URL: {target}, using default API endpoint: {API_ENDPOINT}")
-        response = requests.post(f"{API_ENDPOINT}/predictions/stable_diffusion", json=data)
+        logger.warning(f"Using default API endpoint: {SD_API_ENDPOINT}")
+        response = requests.post(f"{SD_API_ENDPOINT}/predictions/stable_diffusion", json=data)
       response.raise_for_status()
       logger.info(f"Response: {response.content}")
       return make_response(response.content, response.status_code, response.headers.items())

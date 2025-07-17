@@ -1,0 +1,36 @@
+steps:
+- name: 'python:3.12'
+  entrypoint: 'bash'
+  id: 'Install dependencies and download model'
+  args:
+  - -c
+  - |
+    pip install huggingface-hub google-cloud-storage && \
+    python -c "
+    from huggingface_hub import snapshot_download
+    import os
+    model_id = '${_MODEL_ID}'
+    model_dir = './models'
+    access_token = os.environ.get('HF_TOKEN')
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+    snapshot_download(repo_id=model_id, local_dir=model_dir, ignore_patterns=['*.onnx','*.onnx_data','*model.safetensors','sd_xl_turbo_1.0.safetensors'])
+    "
+  secretEnv: ['HF_TOKEN']
+
+- name: 'gcr.io/cloud-builders/gsutil'
+  id: 'Upload model to GCS'
+  args: ['-m', 'rsync', '-r', './models', 'gs://${_BUCKET_NAME}']
+
+options:
+  machineType: 'E2_HIGHCPU_32'
+
+substitutions:
+  _MODEL_ID: stabilityai/sdxl-turbo
+  _BUCKET_NAME: your-gcs-bucket-name
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/$PROJECT_ID/secrets/hf-token/versions/latest
+    env: 'HF_TOKEN'
+
