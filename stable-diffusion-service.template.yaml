@@ -54,11 +54,6 @@ spec:
             value: PROJECT_ID-images
           - name: MODEL_BUCKET_NAME
             value: PROJECT_ID-models
-          - name: HF_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: hf-token
-                key: latest
         resources:
           limits:
             cpu: '6'

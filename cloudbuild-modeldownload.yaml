@@ -16,7 +16,6 @@ steps:
         os.makedirs(model_dir)
     snapshot_download(repo_id=model_id, local_dir=model_dir, ignore_patterns=['*.onnx','*.onnx_data','*model.safetensors','sd_xl_turbo_1.0.safetensors'])
     "
-  secretEnv: ['HF_TOKEN']
 
 - name: 'gcr.io/cloud-builders/gsutil'
   id: 'Upload model to GCS'
@@ -28,9 +27,3 @@ options:
 substitutions:
   _MODEL_ID: stabilityai/sdxl-turbo
   _BUCKET_NAME: your-gcs-bucket-name
-
-availableSecrets:
-  secretManager:
-  - versionName: projects/$PROJECT_ID/secrets/hf-token/versions/latest
-    env: 'HF_TOKEN'
-

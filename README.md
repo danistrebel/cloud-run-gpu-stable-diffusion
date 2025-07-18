@@ -102,26 +102,6 @@ gcloud compute routers nats create nat --router=nat-router --region=$REGION --au
 (cd demo-ui && gcloud builds submit --tag "$REGION-docker.pkg.dev/$PROJECT_ID/demo/demo-ui" --project $PROJECT_ID)
 ```
 
-## Create a Secret for the Huggingface Token
-
-Obtain a hugging face token from https://huggingface.co/settings/tokens
-
-```sh
-export HF_TOKEN="hf_..."
-```
-
-and store it in a secret:
-
-```sh
-echo "$HF_TOKEN" | gcloud secrets create hf-token --data-file=- --project $PROJECT_ID
-# Authorize the default compute service account
-PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
-gcloud secrets add-iam-policy-binding hf-token \
-    --role="roles/secretmanager.secretAccessor" \
-    --member="serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
-    --project $PROJECT_ID
-```
-
 ## Download the model to GCS
 
 The following Cloud Build job can be used to download the required model assets and push to GCS:
